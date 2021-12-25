@@ -30,19 +30,49 @@ namespace HTTPServer
         List<string> headerLines = new List<string>();
         public Response(StatusCode code, string contentType, string content, string redirectoinPath)
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+            string Date = DateTime.Now.ToString();
             // TODO: Add headlines (Content-Type, Content-Length,Date, [location if there is redirection])
+            string ResponseHeader;
+            if (redirectoinPath!=null)
+            {
+                ResponseHeader = "Content-Type => " + contentType + "\r\n" + "Content-Length => " + content.Length + "\r\n" + "Date => " + Date + "\r\n" + "Location => " + redirectoinPath + "\r\n";
+            }
+            else
+            {
+                ResponseHeader = "Content-Type => " + contentType + "\r\n" + "Content-Length => " + content.Length + "\r\n" + "Date => " + Date + "\r\n";
+            }
 
 
-            // TODO: Create the request string
-
+            // TODO: Create the response string
+            switch (code)
+            {
+                case StatusCode.OK:
+                    responseString = GetStatusLine(code) + " OK" + "\r\n" + ResponseHeader + "\r\n" + content;
+                    break;
+                case StatusCode.InternalServerError:
+                    responseString = GetStatusLine(code) + " Internal Server Error" + "\r\n" + ResponseHeader + "\r\n" + content;
+                    break;
+                case StatusCode.NotFound:
+                    responseString = GetStatusLine(code) + " Not Found" + "\r\n" + ResponseHeader + "\r\n" + content;
+                    break;
+                case StatusCode.BadRequest:
+                    responseString = GetStatusLine(code) + " Bad Request" + "\r\n" + ResponseHeader + "\r\n" + content;
+                    break;
+                case StatusCode.Redirect:
+                    responseString = GetStatusLine(code) + " Redirect" + "\r\n" + ResponseHeader + "\r\n" + content;
+                    break;
+                default:
+                    responseString = "Something gone error in Switch or Response Class";
+                    break;
+            }
         }
 
         private string GetStatusLine(StatusCode code)
         {
             // TODO: Create the response status line and return it
-            string statusLine = string.Empty;
-
+            string httpVersion = Configuration.ServerHTTPVersion;
+            string statusLine = httpVersion+code.ToString();
             return statusLine;
         }
     }

@@ -45,7 +45,7 @@ namespace HTTPServer
         /// <returns>True if parsing succeeds, false otherwise.</returns>
         public bool ParseRequest()
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
 
             //TODO: parse the receivedRequest using the \r\n delimeter   
 
@@ -56,11 +56,62 @@ namespace HTTPServer
             // Validate blank line exists
 
             // Load header lines into HeaderLines dictionary
+            if (ParseRequestLine() || LoadHeaderLines() || ValidateBlankLine())
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         private bool ParseRequestLine()
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+            contentLines = requestString.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
+            if (contentLines.Length>=4)
+            {
+                requestLines = contentLines[0].Split(' ');
+                if (requestLines.Length != 3) return false;
+                //If conditions that assign the method of the request
+                if (requestLines[0]=="GET")
+                {
+                    method = RequestMethod.GET;
+                }
+                else if(requestLines[0] == "POST")
+                {
+                    method = RequestMethod.POST;
+                }
+                else
+                {
+                    method = RequestMethod.HEAD;
+                }
+                //Check if uri Valid or not
+                if (!ValidateIsURI(requestLines[1]))
+                {
+                    return false;
+                }
+                relativeURI = requestLines[1].Remove(0, 1);//assign uri without \r\n
+                //If conditions that assign the HTTP Protocol
+                if (requestLines[2]=="HTTP/1.1")
+                {
+                    httpVersion = HTTPVersion.HTTP11;
+                }
+                else if (requestLines[2] == "HTTP/1.0")
+                {
+                    httpVersion = HTTPVersion.HTTP10;
+                }
+                else
+                {
+                    httpVersion = HTTPVersion.HTTP09;
+                }
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         private bool ValidateIsURI(string uri)
@@ -70,12 +121,26 @@ namespace HTTPServer
 
         private bool LoadHeaderLines()
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+            string[] headerSepartors = new string[] { ": " };
+            headerLines = new Dictionary<string, string>();
+            int i = 1;
+            while (i<contentLines[i].Length)
+            {
+                string [] headers= contentLines[i].Split(headerSepartors, StringSplitOptions.RemoveEmptyEntries);
+                if (headers.Length==0)
+                {
+                    break;
+                }
+                headerLines.Add(headers[0], headers[1]);
+                i++;
+            }
+            return headerLines.Count > 1;
         }
 
         private bool ValidateBlankLine()
         {
-            throw new NotImplementedException();
+            return requestString.EndsWith("\r\n\r\n");
         }
 
     }
