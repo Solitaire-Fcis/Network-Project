@@ -2,4 +2,4 @@
 
 put the inetpub folder in C: partition in order to work properly
 
-# - [X] Project Done 
+# - [x] Project Done 
