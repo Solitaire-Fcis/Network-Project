@@ -95,6 +95,7 @@ namespace HTTPServer
                 if (request.ParseRequest()==false)
                 {
                     content = LoadDefaultPage(Configuration.BadRequestDefaultPageName);
+                    Console.WriteLine($"Response Status Code: {400}");
                     return new Response(StatusCode.BadRequest, TypeOfContent, content, null);
                 }
                 //TODO: map the relativeURI in request to get the physical path of the resource.
@@ -103,13 +104,15 @@ namespace HTTPServer
                 {
                     string Redirected_page = Configuration.RedirectionRules[request.relativeURI];
                     content = LoadDefaultPage(GetRedirectionPagePathIFExist(Redirected_page));
+                    Console.WriteLine($"Response Status Code: {301}");
                     return new Response(StatusCode.Redirect, TypeOfContent, content, Redirected_page);
                 }
-                if (request.relativeURI == string.Empty)
+                if (request.relativeURI =="")
                 {
                     if (File.Exists(Path.Combine(Configuration.RootPath, Configuration.MainPageName)))
                     {
                         content = LoadDefaultPage(Configuration.MainPageName);
+                        Console.WriteLine($"Response Status Code: {200}");
                         return new Response(StatusCode.OK, TypeOfContent, content, null);
                     }
                 }
@@ -119,10 +122,14 @@ namespace HTTPServer
                 // Create OK response
                 content = LoadDefaultPage(request.relativeURI);
                 if (content != "")
+                {
+                    Console.WriteLine($"Response Status Code: {200}");
                     return new Response(StatusCode.OK, TypeOfContent, content, null);
-                
+                }
+
                 //404 Not Found
                 content = LoadDefaultPage(Configuration.NotFoundDefaultPageName);
+                Console.WriteLine($"Response Status Code: {404}");
                 return new Response(StatusCode.NotFound, TypeOfContent, content, null);
             }
             catch (Exception ex)
@@ -131,6 +138,7 @@ namespace HTTPServer
                 Logger.LogException(ex);
                 // TODO: in case of exception, return Internal Server Error. 
                 content = LoadDefaultPage(Configuration.InternalErrorDefaultPageName);
+                Console.WriteLine($"Response Status Code: {500}");
                 return new Response(StatusCode.InternalServerError, TypeOfContent, content, null);
             }
         }
