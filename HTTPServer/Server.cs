@@ -28,9 +28,12 @@ namespace HTTPServer
         {
             // TODO: Listen to connections, with large backlog.
             serverSocket.Listen(1000);
+            Console.WriteLine("\t\t\t\t\tWelCome To Fcis Network Server !\t\t\t\t\t");
+            Console.WriteLine("Waiting For Connection....[IP:127.0.0.1][Port:1000]");
             // TODO: Accept connections in while loop and start a thread for each connection on function "Handle Connection"
             while (true)
             {
+              
                 Socket clientSocket = serverSocket.Accept();
                 Console.WriteLine("New Client Just Landed On Our Server:{0}", clientSocket.RemoteEndPoint);
                 Thread OpenNewThread = new Thread(new ParameterizedThreadStart(HandleConnection));
@@ -57,6 +60,7 @@ namespace HTTPServer
                     data = new byte[1024];
                     recievedLength = RevievedClientSocket.Receive(data);
                     // TODO: break the while loop if receivedLen==0
+                    
                     if (recievedLength==0)
                     {
                         Console.WriteLine("Client with IP:{0} ended the connection with us :(", RevievedClientSocket.RemoteEndPoint);
