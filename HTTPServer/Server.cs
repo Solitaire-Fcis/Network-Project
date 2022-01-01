@@ -12,7 +12,8 @@ namespace HTTPServer
     class Server
     {
         string TypeOfContent = "text/html";
-        Socket serverSocket;
+        Socket serverSocket; 
+        string encodRequest;
         public Server(int portNumber, string redirectionMatrixPath)
         {
             //TODO: call this.LoadRedirectionRules passing redirectionMatrixPath to it
@@ -67,7 +68,8 @@ namespace HTTPServer
                         break;
                     }
                     // TODO: Create a Request object using received request string
-                    Request req = new Request(Encoding.ASCII.GetString(data,0,recievedLength));
+                    encodRequest = Encoding.ASCII.GetString(data, 0, recievedLength);
+                    Request req = new Request(encodRequest);
                     // TODO: Call HandleRequest Method that returns the response
                     Response res = HandleRequest(req);
                     // TODO: Send Response back to client
@@ -91,12 +93,20 @@ namespace HTTPServer
             string content;
             try
             {
+               
                 //TODO: check for bad request 
                 if (request.ParseRequest()==false)
                 {
                     content = LoadDefaultPage(Configuration.BadRequestDefaultPageName);
                     Console.WriteLine($"Response Status Code: {400}");
                     return new Response(StatusCode.BadRequest, TypeOfContent, content, null);
+                }
+                //If Request is post requet 'Bonus'
+                if (encodRequest.Contains("POST"))
+                {
+                    content = LoadDefaultPage(Configuration.PostResponse);
+                    Console.WriteLine($"Response Status Code: {200}");
+                    return new Response(StatusCode.OK, TypeOfContent, content, null);
                 }
                 //TODO: map the relativeURI in request to get the physical path of the resource.
                 //TODO: check for redirect
@@ -119,6 +129,7 @@ namespace HTTPServer
                 //TODO: check file exists
 
                 //TODO: read the physical file
+            
                 // Create OK response
                 content = LoadDefaultPage(request.relativeURI);
                 if (content != "")

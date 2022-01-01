@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Xml;
 
 namespace HTTPServer
 {
@@ -56,14 +57,29 @@ namespace HTTPServer
             // Validate blank line exists
 
             // Load header lines into HeaderLines dictionary
-            if (ParseRequestLine() || LoadHeaderLines() || ValidateBlankLine())
+            if (ParseRequestLine() && requestLines[0]=="GET")
             {
+                if (ValidateBlankLine() && LoadHeaderLines())
+                {
                 return true;
+                }
+                else
+                {
+                    return false;
+                }
             }
-            else
+            else if(requestLines[0] == "POST")
             {
-                return false;
+                if (LoadHeaderLines())
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
             }
+            return true;
         }
 
         private bool ParseRequestLine()
@@ -82,6 +98,18 @@ namespace HTTPServer
                 else if(requestLines[0] == "POST")
                 {
                     method = RequestMethod.POST;
+                    string[] splitFirstAndSecond = contentLines[18].Split('&');
+                    XmlTextWriter textWriter = new XmlTextWriter(Configuration.RootPath + "\\myXmFile.xml", null);
+                    textWriter.WriteStartDocument();
+                    textWriter.WriteStartElement("Student");
+                    textWriter.WriteStartElement("FirstName", "");
+                    textWriter.WriteString(splitFirstAndSecond[0]);
+                    textWriter.WriteEndElement();
+                    textWriter.WriteStartElement("SecondName", "");
+                    textWriter.WriteString(splitFirstAndSecond[1]);
+                    textWriter.WriteEndElement();
+                    textWriter.WriteEndDocument();
+                    textWriter.Close();
                 }
                 else
                 {
@@ -125,17 +153,29 @@ namespace HTTPServer
             string[] headerSepartors = new string[] { ": " };
             headerLines = new Dictionary<string, string>();
             int i = 1;
-            while (i<contentLines[i].Length)
+            while (i<contentLines.Length)
             {
                 string [] headers= contentLines[i].Split(headerSepartors, StringSplitOptions.RemoveEmptyEntries);
                 if (headers.Length==0)
                 {
                     break;
                 }
-                headerLines.Add(headers[0], headers[1]);
+                try
+                {
+                    headerLines.Add(headers[0], headers[1]);
+                }
+                catch (Exception)
+                {
+
+                    headerLines.Add("Content", headers[0]);
+                }
                 i++;
             }
-            return headerLines.Count > 1;
+            if (headerLines.Count > 1)
+            {
+                return true;
+            }
+            return false;
         }
 
         private bool ValidateBlankLine()

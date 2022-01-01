@@ -16,6 +16,9 @@ namespace HTTPServer
         public static string NotFoundDefaultPageName = "NotFound.html";
         public static string InternalErrorDefaultPageName = "InternalError.html";
         public static string MainPageName = "main.html";
+        public static string FormPageName = "Form.html";
+        public static string PostResponse = "PostRespnse.html";
+
 
     }
 }
